@@ -3,74 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>复利模拟器</title>
+<title>复利模拟器 v2</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
-  .card { max-width: 640px; margin: 0 auto; background: #1e293b; border-radius: 16px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f172a; color: #e2e8f0; padding: 16px; }
+  .card { max-width: 680px; margin: 0 auto; background: #1e293b; border-radius: 16px; padding: 22px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
   h1 { font-size: 22px; margin-bottom: 6px; color: #7dd3fc; }
-  .sub { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
-  .row { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-  .field { flex: 1; min-width: 140px; }
+  .sub { font-size: 13px; color: #94a3b8; margin-bottom: 18px; }
+  .row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 130px; }
   label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
   input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 16px; }
   input:focus { outline: none; border-color: #7dd3fc; }
-  button { width: 100%; padding: 12px; margin-top: 6px; border: none; border-radius: 10px; background: #0ea5e9; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+  button { width: 100%; padding: 12px; margin-top: 4px; border: none; border-radius: 10px; background: #0ea5e9; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
   button:active { background: #0284c7; }
-  .result { margin-top: 20px; padding: 16px; background: #0f172a; border-radius: 12px; display: none; }
+  .result { margin-top: 18px; padding: 16px; background: #0f172a; border-radius: 12px; display: none; }
   .result.show { display: block; }
-  .big { font-size: 30px; font-weight: 700; color: #fbbf24; margin: 4px 0 14px; }
+  .big { font-size: 32px; font-weight: 700; color: #fbbf24; margin: 4px 0 14px; }
   .line { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; border-bottom: 1px dashed #1e293b; }
   .line span:last-child { color: #7dd3fc; font-weight: 600; }
+  .chart-box { margin: 14px 0 4px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #94a3b8; margin-top: 6px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  .compare { margin-top: 16px; padding: 12px; background: #1e293b; border-radius: 10px; }
+  .compare h3 { font-size: 14px; color: #7dd3fc; margin-bottom: 8px; }
+  .late { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  .late span:last-child { color: #f87171; font-weight: 600; }
   table { width: 100%; margin-top: 14px; border-collapse: collapse; font-size: 13px; }
   th, td { padding: 6px 4px; text-align: right; border-bottom: 1px solid #1e293b; }
   th { color: #94a3b8; font-weight: 500; }
   td:first-child, th:first-child { text-align: left; }
+  .tip { font-size: 12px; color: #64748b; margin-top: 12px; text-align: center; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>💰 复利模拟器</h1>
-  <p class="sub">爱因斯坦说复利是世界第八大奇迹。改改数字，看看时间怎么帮你赚钱。</p>
+  <h1>💰 复利模拟器 v2</h1>
+  <p class="sub">改数字，看时间怎么帮你赚钱。红金线是账户总值，灰蓝线是你掏的本金——两线张开的嘴越大，复利越凶。</p>
+
   <div class="row">
     <div class="field"><label>起始年龄</label><input id="startAge" type="number" value="17"></div>
-    <div class="field"><label>每月投入（元）</label><input id="monthly" type="number" value="300"></div>
+    <div class="field"><label>初始资金（元）</label><input id="initial" type="number" value="5000"></div>
   </div>
   <div class="row">
+    <div class="field"><label>每月投入（元）</label><input id="monthly" type="number" value="300"></div>
     <div class="field"><label>年化收益率 %</label><input id="rate" type="number" value="7" step="0.5"></div>
     <div class="field"><label>算到几岁</label><input id="endAge" type="number" value="60"></div>
   </div>
   <button onclick="run()">开始模拟</button>
+
   <div class="result" id="result">
     <div class="line"><span>最终总资产</span><span></span></div>
     <div class="big" id="total"></div>
-    <div class="line"><span>你实际投入的本金</span><span id="principal"></span></div>
-    <div class="line"><span>复利帮你赚的（利息的利息）</span><span id="profit"></span></div>
+    <div class="line"><span>你实际掏的本金（含初始资金）</span><span id="principal"></span></div>
+    <div class="line"><span>复利帮你赚的部分</span><span id="profit"></span></div>
     <div class="line"><span>收益是本金的</span><span id="ratio"></span></div>
+
+    <div class="chart-box">
+      <svg id="chart" viewBox="0 0 600 220" width="100%" preserveAspectRatio="none" style="background:#0f172a;border-radius:8px"></svg>
+      <div class="legend">
+        <span><span class="dot" style="background:#fbbf24"></span>账户总值</span>
+        <span><span class="dot" style="background:#64748b"></span>累计本金</span>
+      </div>
+    </div>
+
+    <div class="compare">
+      <h3>⏳ 起步时间的代价</h3>
+      <div class="late"><span>如果你晚 5 年才开始</span><span id="late5"></span></div>
+      <div class="late"><span>如果你晚 10 年才开始</span><span id="late10"></span></div>
+      <div class="tip">每一年拖延，都是真金白银</div>
+    </div>
+
     <table id="table"></table>
+    <div class="tip">模拟基于固定年化收益的复利公式，实际市场有波动，仅作理解概念用</div>
   </div>
 </div>
+
 <script>
 function fmt(n){ return "¥" + Math.round(n).toLocaleString("zh-CN"); }
-function run(){
-  var s = +document.getElementById("startAge").value;
-  var m = +document.getElementById("monthly").value;
-  var r = +document.getElementById("rate").value / 100;
-  var e = +document.getElementById("endAge").value;
+
+// 模拟核心：从 s 岁到 e 岁，初始 init 元，每月 m 元，年化 r
+function simulate(s, e, init, m, r){
   var i = r / 12, months = (e - s) * 12;
-  var total = 0, principal = 0, rows = [];
+  var total = init, principal = init, points = [];
   for (var k = 1; k <= months; k++){
     total = total * (1 + i) + m;
     principal += m;
-    if (k % 12 === 0) rows.push([s + k/12 + " 岁", principal, total]);
+    if (k % 12 === 0) points.push({ age: s + k/12, principal: principal, total: total });
   }
+  return points;
+}
+
+function drawChart(points){
+  var W = 600, H = 220, pad = 20;
+  var maxV = points[points.length-1].total * 1.05;
+  var n = points.length;
+  var x = function(idx){ return pad + idx * (W - 2*pad) / (n - 1); };
+  var y = function(v){ return H - pad - v * (H - 2*pad) / maxV; };
+  var pathT = points.map(function(p, idx){ return x(idx) + "," + y(p.total); }).join(" ");
+  var pathP = points.map(function(p, idx){ return x(idx) + "," + y(p.principal); }).join(" ");
+  var svg = document.getElementById("chart");
+  svg.innerHTML =
+    // 网格线
+    [0.25,0.5,0.75].map(function(f){
+      var yy = y(maxV*f);
+      return "<line x1='"+pad+"' y1='"+yy+"' x2='"+(W-pad)+"' y2='"+yy+"' stroke='#1e293b' stroke-width='1'/>";
+    }).join("") +
+    // 本金线（灰蓝）
+    "<polyline points='"+pathP+"' fill='none' stroke='#64748b' stroke-width='2'/>" +
+    // 总资产线（金）
+    "<polyline points='"+pathT+"' fill='none' stroke='#fbbf24' stroke-width='2.5'/>" +
+    // 终点标记
+    "<circle cx='"+x(n-1)+"' cy='"+y(points[n-1].total)+"' r='4' fill='#fbbf24'/>";
+}
+
+function run(){
+  var s = +document.getElementById("startAge").value;
+  var m = +document.getElementById("monthly").value;
+  var init = +document.getElementById("initial").value;
+  var r = +document.getElementById("rate").value / 100;
+  var e = +document.getElementById("endAge").value;
+  if (e <= s) { alert("算到几岁要比起始年龄大哦"); return; }
+
+  var points = simulate(s, e, init, m, r);
+  var total = points[points.length-1].total;
+  var principal = points[points.length-1].principal;
+
   document.getElementById("total").textContent = fmt(total);
   document.getElementById("principal").textContent = fmt(principal);
   document.getElementById("profit").textContent = fmt(total - principal);
-  document.getElementById("ratio").textContent = (total / principal).toFixed(1) + " 倍";
+  document.getElementById("ratio").textContent = principal > 0 ? (total/principal).toFixed(1) + " 倍" : "-";
+
+  // 晚开始对比：少投入本金，但资产差更多
+  function late(lossYears){
+    if (e - s <= lossYears) return "年限不够，无法模拟";
+    var p2 = simulate(s + lossYears, e, init, m, r);
+    var t2 = p2[p2.length-1].total;
+    return "少赚 " + fmt(total - t2);
+  }
+  document.getElementById("late5").textContent = late(5);
+  document.getElementById("late10").textContent = late(10);
+
+  drawChart(points);
+
   var html = "<tr><th>年龄</th><th>累计本金</th><th>账户总值</th></tr>";
-  rows.forEach(function(row){
-    html += "<tr><td>" + row[0] + "</td><td>" + fmt(row[1]) + "</td><td>" + fmt(row[2]) + "</td></tr>";
+  points.forEach(function(p){
+    html += "<tr><td>" + p.age + " 岁</td><td>" + fmt(p.principal) + "</td><td>" + fmt(p.total) + "</td></tr>";
   });
   document.getElementById("table").innerHTML = html;
   document.getElementById("result").classList.add("show");

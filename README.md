@@ -38,3 +38,4 @@
 ---
 
 *一个高中生的第一个 Web 作品 · 用代码理解钱和世界*
+cloned on my Mint machine
